@@ -1,0 +1,393 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 100
+
+// ---------------- NODE STRUCTURE ----------------
+struct Station
+{
+    char name[50];
+    int distance;
+    float fare;
+    struct Station *next;
+};
+
+struct Station *head = NULL;
+
+// ---------------- STACK FOR HISTORY ----------------
+char history[MAX][50];
+int top = -1;
+
+// ---------------- PUSH HISTORY ----------------
+void pushHistory(char action[])
+{
+    if (top < MAX - 1)
+    {
+        top++;
+        strcpy(history[top], action);
+    }
+}
+
+// ---------------- DISPLAY HISTORY ----------------
+void displayHistory()
+{
+    if (top == -1)
+    {
+        printf("\nNo Travel History Available.\n");
+        return;
+    }
+
+    printf("\n--- Travel History ---\n");
+
+    for (int i = top; i >= 0; i--)
+    {
+        printf("%s\n", history[i]);
+    }
+}
+
+// ---------------- CREATE NODE ----------------
+struct Station *createStation(char name[], int distance, float fare)
+{
+    struct Station *newNode;
+
+    newNode = (struct Station *)malloc(sizeof(struct Station));
+
+    strcpy(newNode->name, name);
+    newNode->distance = distance;
+    newNode->fare = fare;
+    newNode->next = NULL;
+
+    return newNode;
+}
+
+// ---------------- ADD STATION ----------------
+void addStation()
+{
+    char name[50];
+    int distance;
+    float fare;
+
+    printf("Enter Station Name: ");
+    scanf(" %[^\n]", name);
+
+    printf("Enter Distance: ");
+    scanf("%d", &distance);
+
+    printf("Enter Fare: ");
+    scanf("%f", &fare);
+
+    struct Station *newNode = createStation(name, distance, fare);
+
+    if (head == NULL)
+    {
+        head = newNode;
+    }
+    else
+    {
+        struct Station *temp = head;
+
+        while (temp->next != NULL)
+        {
+            temp = temp->next;
+        }
+
+        temp->next = newNode;
+    }
+
+    printf("\nStation Added Successfully.\n");
+}
+
+// ---------------- INSERT STATION ----------------
+void insertStation()
+{
+    int pos, count = 1;
+    char name[50];
+    int distance;
+    float fare;
+
+    printf("Enter Position: ");
+    scanf("%d", &pos);
+
+    printf("Enter Station Name: ");
+    scanf(" %[^\n]", name);
+
+    printf("Enter Distance: ");
+    scanf("%d", &distance);
+
+    printf("Enter Fare: ");
+    scanf("%f", &fare);
+
+    struct Station *newNode = createStation(name, distance, fare);
+
+    if (pos == 1)
+    {
+        newNode->next = head;
+        head = newNode;
+        printf("\nStation Inserted Successfully.\n");
+        return;
+    }
+
+    struct Station *temp = head;
+
+    while (temp != NULL && count < pos - 1)
+    {
+        temp = temp->next;
+        count++;
+    }
+
+    if (temp == NULL)
+    {
+        printf("\nInvalid Position.\n");
+        return;
+    }
+
+    newNode->next = temp->next;
+    temp->next = newNode;
+
+    printf("\nStation Inserted Successfully.\n");
+}
+
+// ---------------- DELETE STATION ----------------
+void deleteStation()
+{
+    char name[50];
+
+    printf("Enter Station Name to Delete: ");
+    scanf(" %[^\n]", name);
+
+    struct Station *temp = head;
+    struct Station *prev = NULL;
+
+    while (temp != NULL)
+    {
+        if (strcmp(temp->name, name) == 0)
+        {
+            if (prev == NULL)
+            {
+                head = temp->next;
+            }
+            else
+            {
+                prev->next = temp->next;
+            }
+
+            free(temp);
+
+            printf("\nStation Deleted Successfully.\n");
+            return;
+        }
+
+        prev = temp;
+        temp = temp->next;
+    }
+
+    printf("\nStation Not Found.\n");
+}
+
+// ---------------- DISPLAY ROUTE ----------------
+void displayRoute()
+{
+    if (head == NULL)
+    {
+        printf("\nNo Stations Available.\n");
+        return;
+    }
+
+    struct Station *temp = head;
+
+    printf("\n--- Railway Route ---\n");
+
+    while (temp != NULL)
+    {
+        printf("Station: %s | Distance: %d | Fare: %.2f\n",
+               temp->name,
+               temp->distance,
+               temp->fare);
+
+        temp = temp->next;
+    }
+}
+
+// ---------------- REVERSE DISPLAY ----------------
+void reverseDisplay(struct Station *temp)
+{
+    if (temp == NULL)
+    {
+        return;
+    }
+
+    reverseDisplay(temp->next);
+
+    printf("Station: %s | Distance: %d | Fare: %.2f\n",
+           temp->name,
+           temp->distance,
+           temp->fare);
+}
+
+// ---------------- SEARCH STATION ----------------
+void searchStation()
+{
+    char name[50];
+
+    printf("Enter Station Name to Search: ");
+    scanf(" %[^\n]", name);
+
+    struct Station *temp = head;
+
+    while (temp != NULL)
+    {
+        if (strcmp(temp->name, name) == 0)
+        {
+            printf("\nStation Found.\n");
+
+            printf("Name: %s\n", temp->name);
+            printf("Distance: %d\n", temp->distance);
+            printf("Fare: %.2f\n", temp->fare);
+
+            return;
+        }
+
+        temp = temp->next;
+    }
+
+    printf("\nStation Not Found.\n");
+}
+
+// ---------------- TOTAL DISTANCE ----------------
+void totalDistance()
+{
+    int total = 0;
+
+    struct Station *temp = head;
+
+    while (temp != NULL)
+    {
+        total += temp->distance;
+        temp = temp->next;
+    }
+
+    printf("\nTotal Distance = %d KM\n", total);
+}
+
+// ---------------- TOTAL FARE ----------------
+void totalFare()
+{
+    float total = 0;
+
+    struct Station *temp = head;
+
+    while (temp != NULL)
+    {
+        total += temp->fare;
+        temp = temp->next;
+    }
+
+    printf("\nTotal Fare = %.2f\n", total);
+}
+
+// ---------------- TRAVEL SIMULATION ----------------
+void travelSimulation()
+{
+    struct Station *temp = head;
+
+    if (temp == NULL)
+    {
+        printf("\nNo Stations Available.\n");
+        return;
+    }
+
+    printf("\n--- Travel Simulation ---\n");
+
+    while (temp != NULL)
+    {
+        printf("Travelling to %s...\n", temp->name);
+
+        pushHistory(temp->name);
+
+        temp = temp->next;
+    }
+
+    printf("\nJourney Completed.\n");
+}
+
+// ---------------- MAIN FUNCTION ----------------
+int main()
+{
+    int choice;
+
+    while (1)
+    {
+        printf("\n====================================");
+        printf("\n Railway Route Management System");
+        printf("\n====================================");
+
+        printf("\n1. Add Station");
+        printf("\n2. Insert Station");
+        printf("\n3. Delete Station");
+        printf("\n4. Display Route");
+        printf("\n5. Reverse Display");
+        printf("\n6. Search Station");
+        printf("\n7. Total Distance");
+        printf("\n8. Total Fare");
+        printf("\n9. Travel Simulation");
+        printf("\n10. Show History");
+        printf("\n11. Exit");
+
+        printf("\n\nEnter Your Choice: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+        case 1:
+            addStation();
+            break;
+
+        case 2:
+            insertStation();
+            break;
+
+        case 3:
+            deleteStation();
+            break;
+
+        case 4:
+            displayRoute();
+            break;
+
+        case 5:
+            printf("\n--- Reverse Route ---\n");
+            reverseDisplay(head);
+            break;
+
+        case 6:
+            searchStation();
+            break;
+
+        case 7:
+            totalDistance();
+            break;
+
+        case 8:
+            totalFare();
+            break;
+
+        case 9:
+            travelSimulation();
+            break;
+
+        case 10:
+            displayHistory();
+            break;
+
+        case 11:
+            printf("\nProgram Terminated.\n");
+            exit(0);
+
+        default:
+            printf("\nInvalid Choice.\n");
+        }
+    }
+
+    return 0;
+}
